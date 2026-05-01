@@ -1,7 +1,7 @@
 # patrol: capture UniFi controller webhook alerts into a 'threats' topic.
 #
 # Run:
-#   http-nu --store ./store :3001 -w ./serve.nu
+#   http-nu --store ./store :3001 ./serve.nu
 #
 # UniFi (or any client) POSTs to /threats with:
 #   Authorization: Bearer <token>
