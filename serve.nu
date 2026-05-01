@@ -53,17 +53,16 @@ def bearer-token [req: record]: nothing -> any {
       let raw = $in
       let ip = $req.trusted_ip? | default ""
 
-      # IP gate first -- a disallowed peer gets 403 without any signal about
-      # token validity.
+      # `return (X | metadata set Y)` drops the metadata before http-nu sees
+      # it -- fall-through as last expression preserves it.
       if not ($CFG.allowed_ips | any {|cidr| cidr-contains $cidr $ip }) {
-        return ("forbidden" | metadata set { merge {'http.response': {status: 403}} })
+        "forbidden" | metadata set { merge {'http.response': {status: 403}} }
+      } else if not ((bearer-token $req) in $CFG.bearer_tokens) {
+        "unauthorized" | metadata set { merge {'http.response': {status: 401}} }
+      } else {
+        $raw | .append threats | ignore
+        "" | metadata set { merge {'http.response': {status: 204}} }
       }
-      if not ((bearer-token $req) in $CFG.bearer_tokens) {
-        return ("unauthorized" | metadata set { merge {'http.response': {status: 401}} })
-      }
-
-      $raw | .append threats | ignore
-      "" | metadata set { merge {'http.response': {status: 204}} }
     })
 
     (route true {|req ctx|
