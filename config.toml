@@ -1,0 +1,11 @@
+# Bearer tokens accepted on Authorization: Bearer <token>. Rotate by adding
+# a new entry, deploying, then removing the old one once UniFi is updated.
+bearer_tokens = ["fake-token-replace-me-1234567890abcdef"]
+
+# CIDR allowlist checked against $req.trusted_ip. With --trust-proxy passed
+# to http-nu this matches the originating client; otherwise the direct peer.
+# Empty list denies everyone.
+allowed_ips = [
+  "127.0.0.1/32",
+  "10.0.0.0/8",
+]
